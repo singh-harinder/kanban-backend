@@ -1,5 +1,4 @@
 .keystone/
-tests/
 .vscode/
 .git
 .gitignore
@@ -7,5 +6,5 @@ tests/
 .eslintignore
 .prettierrc.js
 .env
-node_modules
 node_modules/
+keystone.db

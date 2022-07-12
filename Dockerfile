@@ -1,8 +1,7 @@
-FROM node:14-alpine3.14 as build
+FROM node:16-alpine3.16
 
 ARG FRONTEND_URL
 ARG COOKIE_SECRET
-ARG DATABASE_URL
 ARG CLOUDINARY_CLOUD_NAME
 ARG CLOUDINARY_KEY
 ARG CLOUDINARY_SECRET
@@ -13,14 +12,11 @@ EXPOSE 3000
 
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-USER node
 COPY --chown=node:node package.json package-lock.json ./
-RUN npm ci --production && npm cache clean --force
+RUN npm install --force 
 COPY --chown=node:node . ./
-RUN npm run build
+RUN npm run postinstall-keystone
 
-FROM node:14-alpine3.14 as prod
-WORKDIR /app
-COPY --from=build /app ./
+
 USER node
-CMD ["./node_modules/.bin/keystone-next", "start"]
+CMD ["npm", "run", "dev"]

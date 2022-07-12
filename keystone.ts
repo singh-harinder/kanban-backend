@@ -30,12 +30,10 @@ export default config(
   withAuth({
     db: {
       provider: 'postgresql',
-      url: 'postgres://postgres:mati1823@localhost:5432/kanban',
+      url: 'postgres://kanban:kanban@postgresdb/kanban',
       enableLogging: true,
       useMigrations: true,
       idField: { kind: 'uuid' },
-      shadowDatabaseUrl:
-        'postgres://postgres:mati1823@localhost:5432/kanbanshadowdb',
     },
     server: {
       cors: {
