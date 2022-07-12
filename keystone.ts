@@ -1,61 +1,58 @@
-import { createAuth } from '@keystone-next/auth';
-import { config, createSchema } from '@keystone-next/keystone/schema';
-import {
-  withItemData,
-  statelessSessions,
-} from '@keystone-next/keystone/session';
+import { config } from '@keystone-6/core';
+import Board from './schemas/Board';
+import Section from './schemas/Section';
+import Task from './schemas/Task';
+import User from './schemas/User';
+import { createAuth } from '@keystone-6/auth';
+import { statelessSessions } from '@keystone-6/core/session';
 import 'dotenv/config';
-import { Board } from './schemas/Board';
-import { Section } from './schemas/Section';
-import { Task } from './schemas/Task';
-import { User } from './schemas/User';
-
-const databaseURL = process.env.DATABASE_URL;
-
-const sessionConfig = {
-  maxAge: 60 * 60 * 24 * 30,
-  secret: process.env.COOKIE_SECRET,
-};
+import Member from './schemas/Member';
 
 const { withAuth } = createAuth({
   listKey: 'User',
   identityField: 'email',
   secretField: 'password',
+  sessionData: `name email isAdmin`,
   initFirstItem: {
     fields: ['name', 'email', 'password'],
   },
 });
 
-export default withAuth(
-  config({
+const sessionSecret = process.env.COOKIE_SECRET;
+const sessionMaxAge = 60 * 60 * 24 * 30;
+
+const session = statelessSessions({
+  maxAge: sessionMaxAge,
+  secret: sessionSecret,
+});
+
+export default config(
+  withAuth({
+    db: {
+      provider: 'postgresql',
+      url: 'postgres://postgres:mati1823@localhost:5432/kanban',
+      enableLogging: true,
+      useMigrations: true,
+      idField: { kind: 'uuid' },
+      shadowDatabaseUrl:
+        'postgres://postgres:mati1823@localhost:5432/kanbanshadowdb',
+    },
     server: {
       cors: {
         origin: [process.env.FRONTEND_URL],
         credentials: true,
       },
     },
-    db: {
-      adapter: 'mongoose',
-      url: databaseURL,
-    },
-    lists: createSchema({
+    lists: {
       User,
-      Task,
       Board,
+      Task,
       Section,
-    }),
-    ui: {
-      // isAccessAllowed: ({ session }) => {
-      //   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      //   if (session?.data?.isAdmin) {
-      //     return true;
-      //   }
-      // },
-      isAccessAllowed: () => true,
+      Member,
     },
-    session: withItemData(statelessSessions(sessionConfig), {
-      // GraphQL Query
-      User: 'id name email isAdmin',
-    }),
+    session: session,
+    ui: {
+      isAccessAllowed: (context) => !!context.session?.data.isAdmin,
+    },
   })
 );

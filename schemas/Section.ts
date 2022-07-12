@@ -1,9 +1,9 @@
-import { relationship, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import { list } from '@keystone-6/core';
+import { relationship, text } from '@keystone-6/core/fields';
 
-export const Section = list({
+const Section = list({
   fields: {
-    name: text({ isRequired: true, isUnique: true }),
+    name: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
     tasks: relationship({
       ref: 'Task.section',
       many: true,
@@ -13,3 +13,5 @@ export const Section = list({
     }),
   },
 });
+
+export default Section;

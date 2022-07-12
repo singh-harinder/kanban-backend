@@ -1,19 +1,29 @@
-import { checkbox, password, relationship, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import { list } from '@keystone-6/core';
+import {
+  checkbox,
+  password,
+  relationship,
+  text,
+} from '@keystone-6/core/fields';
 
-export const User = list({
+const User = list({
   fields: {
-    name: text({ isRequired: true }),
-    email: text({ isRequired: true, isUnique: true }),
+    name: text({ validation: { isRequired: true } }),
+    email: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
+    password: password({ validation: { isRequired: true } }),
     isAdmin: checkbox({
-      isRequired: true,
+      defaultValue: true,
       label: 'Admin',
-      defaultValue: false,
     }),
-    password: password({ isRequired: true }),
-    // tasks: relationship({
-    //   ref: 'Task.user',
-    //   many: true,
-    // }),
+    board: relationship({
+      ref: 'Board.user',
+      many: true,
+    }),
+    member: relationship({
+      ref: 'Member.leader',
+      many: true,
+    }),
   },
 });
+
+export default User;

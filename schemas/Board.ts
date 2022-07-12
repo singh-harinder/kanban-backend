@@ -1,12 +1,17 @@
-import { relationship, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import { list } from '@keystone-6/core';
+import { relationship, text } from '@keystone-6/core/fields';
 
-export const Board = list({
+const Board = list({
   fields: {
-    name: text({ isRequired: true }),
+    name: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
     section: relationship({
       ref: 'Section.board',
       many: true,
     }),
+    user: relationship({
+      ref: 'User.board',
+    }),
   },
 });
+
+export default Board;

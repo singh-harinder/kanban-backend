@@ -1,18 +1,38 @@
-import { relationship, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import { list } from '@keystone-6/core';
+import {
+  checkbox,
+  relationship,
+  select,
+  text,
+  timestamp,
+} from '@keystone-6/core/fields';
 
-export const Task = list({
+const Task = list({
   fields: {
-    title: text({ isRequired: true, isUnique: true }),
-    description: text({ isRequired: true, isUnique: true }),
-    // user: relationship({
-    //   ref: 'User.tasks',
-    //   defaultValue: ({ context }) => ({
-    //     connect: { id: context.session.itemId },
-    //   }),
-    // }),
+    title: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
+    priority: select({
+      type: 'enum',
+      options: [
+        { label: 'Low', value: 'low' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'High', value: 'high' },
+      ],
+    }),
+    publishedAt: timestamp({
+      defaultValue: {
+        kind: 'now',
+      },
+    }),
+    isComplete: checkbox(),
+    assignedTo: relationship({
+      ref: 'Member.tasks',
+      many: true,
+    }),
+    description: text({ validation: { isRequired: true } }),
     section: relationship({
       ref: 'Section.tasks',
     }),
   },
 });
+
+export default Task;
